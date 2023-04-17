@@ -16,4 +16,6 @@ public class Memory: NSManagedObject, Identifiable {
     @NSManaged public var name: String
     @NSManaged public var image: Data
     @NSManaged public var color: UIColor
+    @NSManaged public var date: Date
+    
 }

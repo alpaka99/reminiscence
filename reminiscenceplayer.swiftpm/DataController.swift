@@ -43,9 +43,13 @@ struct PersistenceController {
         nameAttribute.type = .string
         memoryEntity.properties.append(nameAttribute)
         
+//        let imageAttribute = NSAttributeDescription()
+//        imageAttribute.name = "image"
+//        imageAttribute.type = .string
+//        memoryEntity.properties.append(imageAttribute)
         let imageAttribute = NSAttributeDescription()
         imageAttribute.name = "image"
-        imageAttribute.type = .string
+        imageAttribute.type = .binaryData
         memoryEntity.properties.append(imageAttribute)
         
         let colorAttribute = NSAttributeDescription()
@@ -53,13 +57,18 @@ struct PersistenceController {
         colorAttribute.type = .transformable
         memoryEntity.properties.append(colorAttribute)
         
+        let dateAttribute = NSAttributeDescription()
+        dateAttribute.name = "date"
+        dateAttribute.type = .date
+        memoryEntity.properties.append(dateAttribute)
+        
         
         // now let's create Core Data model
         let model = NSManagedObjectModel()
         model.entities = [memoryEntity]
         
         // we forget to that model to our container
-        container = NSPersistentContainer(name: "Memories", managedObjectModel: model)
+        container = NSPersistentContainer(name: "Memories1", managedObjectModel: model)
         if inMemory {
             container.persistentStoreDescriptions.first!.url = URL(fileURLWithPath: "/dev/null")
         }

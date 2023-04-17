@@ -10,6 +10,7 @@ import SwiftUI
 import CoreData
 
 struct AddMemoryView: View {
+    @Environment(\.dismiss) var dismiss
     @Environment(\.managedObjectContext) private var viewContext
     
     @FetchRequest(entity: Memory.entity(), sortDescriptors: []) private var memories: FetchedResults<Memory>
@@ -17,15 +18,15 @@ struct AddMemoryView: View {
     @State private var image: Image?
     @State private var showImagePicker = false
     @State private var inputImage: UIImage?
-//    @State private var averageUIColor: String?
     @State private var averageUIColor: UIColor?
     @State private var text = ""
-    
+    @State private var pickedColor: Color = Color.clear
+    @State private var date: Date = Date()
     
     
     var body: some View {
         NavigationView {
-            VStack {
+            Form {
                 if let loadedImage = image {
                     loadedImage
                         .resizable()
@@ -40,17 +41,18 @@ struct AddMemoryView: View {
                     
                     // dominat color & color picker
                     Rectangle()
-//                        .fill(averageUIColor != nil ? Color(UIColor(hex: averageUIColor!)!) : .clear)
                         .fill((averageUIColor != nil) ? Color(averageUIColor!) : .clear)
                     
                     
                     
-                    
+                    ColorPicker("Pick a memorable color from picture", selection: $pickedColor)
+                        .onChange(of: pickedColor) { _ in
+                            averageUIColor = UIColor(pickedColor)
+                        }
                     TextField("What memory do you have in this picture?", text: $text)
                         .frame(maxWidth: .infinity)
-                    Button("Submit") {
-                        text = ""
-                    }
+                    
+                    DatePicker("When did this memory happened?", selection: $date, displayedComponents: [.date])
                     
                     
                 } else {
@@ -75,7 +77,9 @@ struct AddMemoryView: View {
                 ToolbarItem {
                     Button("Add") {
                         addNewMemory()
+                        dismiss()
                     }
+                    .disabled(image == nil || averageUIColor == nil || text == "")
                 }
             }
         }
@@ -98,16 +102,18 @@ struct AddMemoryView: View {
     }
     
     func addNewMemory() {
-        let jpeg = inputImage?.jpegData(compressionQuality: 1.0)
+//        let jpeg = inputImage?.jpegData(compressionQuality: 1.0)
         
         let newMemory = Memory(context: viewContext)
-        newMemory.name = "memory #\(memories.count+1)"
+        newMemory.name = text
         newMemory.id = UUID()
-        newMemory.image = jpeg!
+        newMemory.image = (inputImage?.jpegData(compressionQuality: 1.0)!)!
         newMemory.color = averageUIColor!
+        newMemory.date = date
         
         do {
             try viewContext.save()
+            print(memories.count)
         } catch {
             let nsError = error as NSError
             fatalError("Unresolved error \(nsError.localizedDescription)")

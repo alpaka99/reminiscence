@@ -6,41 +6,43 @@
 //
 
 import SwiftUI
+import CoreData
 
 struct DNAView: View {
-//    @FetchRequest(sortDescriptors: []) var memories: FetchedResults<Memory>
     @Environment(\.managedObjectContext) private var viewContext
     
-    @FetchRequest(entity: Memory.entity(), sortDescriptors: []) private var memories: FetchedResults<Memory>
+    @FetchRequest(entity: Memory.entity(), sortDescriptors: [NSSortDescriptor(keyPath: \Memory.date, ascending: true)]) var memories: FetchedResults<Memory>
+    
     @State private var showingAddMemoryView = false
     
-    let colors: [Color] = [.red, .green, .blue, .orange, .pink, .purple, .yellow]
     
     var body: some View {
         NavigationView {
             VStack {
+                Spacer()
                 GeometryReader { fullView in
                     List {
                         ForEach(memories) { memory in
                             GeometryReader { geo in
-//                                Text("Row #\(memory.name)")
-                                NavigationLink("Row #\(memory.name)") {
-                                    DetailView(memory: memory)
+                                NavigationLink(" \(memory.name)") {
+                                    DetailView(memories: memories, memory: memory)
                                 }
                                 .font(.title)
                                 .frame(maxWidth: fullView.size.width)
+//                                .frame(maxWidth: U)
                                 .background(Color(memory.color as UIColor))
                                 .clipShape(Capsule())
-                                .rotation3DEffect(.degrees(geo.frame(in: .global).minY - fullView.size.height / 2) / 5, axis: (x: 0, y: 1, z: 0))
+                                .rotation3DEffect(.degrees(geo.frame(in: .global).minY - fullView.size.height / 1.5) / 5, axis: (x: 0, y: 1, z: 0))
                             }
                             .frame(height: 50)
                         }
                         .onDelete(perform: deleteMemory)
                         .listRowBackground(Color.clear)
                         .listRowSeparatorTint(Color.clear)
+//                            .rotation3DEffect(.degrees(geo.frame(in: .global).minY - fullView.size.height / 2) / 5, axis: (x: 0, y: 1, z: 0))
                     }
                 }
-                
+                Spacer()
                 NavigationLink("", isActive: $showingAddMemoryView) {
                     AddMemoryView()
                 }
@@ -50,7 +52,7 @@ struct DNAView: View {
                     Button {
                         showingAddMemoryView = true
                     } label: {
-                        Text("Add new memory")
+                        Text("Add a new memory")
                     }
                 }
             }
