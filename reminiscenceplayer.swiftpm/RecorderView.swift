@@ -19,14 +19,18 @@ struct RecorderView: View {
     @State var alert = false
     @State private var soundSamples = [Float](repeating: .zero, count: 10)
     @State private var currentSample = 0
-    let numberOfSamples = 10
     
     // Fetch Audios...
     @State var audios: [URL] = []
     
+    
+    let numberOfSamples = 10
+    let id: UUID
+    
+    
+    
     var body: some View {
-        NavigationView {
-            VStack {
+//            VStack {
 //                List(self.audios, id: \.self) { i in
 //                    Text("\(i.relativeString)")
 //                        .onTapGesture {
@@ -56,7 +60,7 @@ struct RecorderView: View {
                             let url = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
                             
                             // name based on audio count
-                            let fileName = url.appendingPathComponent("current.m4a")
+                            let fileName = url.appendingPathComponent("\(id).m4a")
                             
                             let settings = [
                                 AVFormatIDKey: Int(kAudioFormatMPEG4AAC),
@@ -88,7 +92,7 @@ struct RecorderView: View {
                             if self.record {
                                 Circle()
                                     .fill(.red)
-                                    .frame(width: 70, height: 70)
+                                    .frame(width: 55, height: 55)
                                 
                                 Circle()
                                     .stroke(Color.red, lineWidth: 6)
@@ -96,7 +100,7 @@ struct RecorderView: View {
                                         Image(systemName: "pause")
                                             .tint(.white)
                                     }
-                                    .frame(width: 85, height: 85)
+                                    .frame(width: 70, height: 70)
                             } else {
                                 Circle()
                                     .fill(Color.red)
@@ -111,15 +115,13 @@ struct RecorderView: View {
                         HStack(spacing: 4) {
                             // 4
                             ForEach(soundSamples, id: \.self) { level in
-                                BarView(value: self.normalizeSoundLevel(level: level/2))
+                                BarView(value: self.normalizeSoundLevel(level: level))
                             }
                         }
                     }
                 }
-                .padding(.vertical, 25)
-            }
-            .navigationTitle("Record Audio")
-        }
+//                .padding(.vertical, 25)
+//            }
 //        .alert(isPresented: self.$alert) {
 //            Alert(title: Text("Error"), message: Text("Enable Access"))
 //        }
@@ -175,9 +177,9 @@ struct RecorderView: View {
     }
 }
 
-struct Home2_Previews: PreviewProvider {
+struct RecorderView_Previews: PreviewProvider {
     static var previews: some View {
-        RecorderView()
+        RecorderView(id: UUID())
     }
 }
 

@@ -14,20 +14,21 @@ struct BarView: View {
     var value: CGFloat
 
     var body: some View {
-        ZStack {
-           // 2
-            RoundedRectangle(cornerRadius: 20)
-                .fill(LinearGradient(gradient: Gradient(colors: [.purple, .blue]),
-                                     startPoint: .top,
-                                     endPoint: .bottom))
+            ZStack {
+                // 2
+                RoundedRectangle(cornerRadius: 20)
+                    .fill(LinearGradient(gradient: Gradient(colors: [.purple, .blue]),
+                                         startPoint: .top,
+                                         endPoint: .bottom))
                 // 3
-                .frame(width: (UIScreen.main.bounds.width - CGFloat(numberOfSamples) * 4) / CGFloat(numberOfSamples), height: value)
-        }
+                //                .frame(width: (UIScreen.main.bounds.width - CGFloat(numberOfSamples) * 4) / CGFloat(numberOfSamples), height: value / 5)
+                                .frame(width: (UIScreen.main.bounds.width - CGFloat(numberOfSamples) * 10) / CGFloat(numberOfSamples), height: value / 5)
+            }
     }
 }
 
-//struct BarView_Previews: PreviewProvider {
-//    static var previews: some View {
-//        BarView()
-//    }
-//}
+struct BarView_Previews: PreviewProvider {
+    static var previews: some View {
+        BarView(value: 1000)
+    }
+}

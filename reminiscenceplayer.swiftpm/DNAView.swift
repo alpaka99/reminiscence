@@ -19,7 +19,6 @@ struct DNAView: View {
     var body: some View {
         NavigationView {
             VStack {
-                Spacer()
                 GeometryReader { fullView in
                     List {
                         ForEach(memories) { memory in
@@ -29,12 +28,12 @@ struct DNAView: View {
                                 }
                                 .font(.title)
                                 .frame(maxWidth: fullView.size.width)
-//                                .frame(maxWidth: U)
                                 .background(Color(memory.color as UIColor))
-                                .clipShape(Capsule())
-                                .rotation3DEffect(.degrees(geo.frame(in: .global).minY - fullView.size.height / 1.5) / 5, axis: (x: 0, y: 1, z: 0))
+                                .clipShape(RoundedRectangle(cornerRadius: 10))
+                                .rotation3DEffect(.degrees(geo.frame(in: .global).minY - fullView.size.height / 2) / 5, axis: (x: 0, y: 1, z: 0))
+//                                .rotation3DEffect(.degrees(geo.frame(in: .global).minY) / 5, axis: (x: 0, y: 1, z: 0))
                             }
-                            .frame(height: 50)
+                            .frame(height: 40)
                         }
                         .onDelete(perform: deleteMemory)
                         .listRowBackground(Color.clear)
@@ -42,7 +41,6 @@ struct DNAView: View {
 //                            .rotation3DEffect(.degrees(geo.frame(in: .global).minY - fullView.size.height / 2) / 5, axis: (x: 0, y: 1, z: 0))
                     }
                 }
-                Spacer()
                 NavigationLink("", isActive: $showingAddMemoryView) {
                     AddMemoryView()
                 }

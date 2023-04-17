@@ -23,49 +23,94 @@ struct AddMemoryView: View {
     @State private var pickedColor: Color = Color.clear
     @State private var date: Date = Date()
     
+    let id = UUID()
+    @State var name = "memory"
+    
     
     var body: some View {
         NavigationView {
             Form {
-                if let loadedImage = image {
-                    loadedImage
-                        .resizable()
-                        .scaledToFit()
-                    
-                    
-                    
-                    Button("Change image") {
-                        showImagePicker = true
-                        
-                    }
-                    
-                    // dominat color & color picker
-                    Rectangle()
-                        .fill((averageUIColor != nil) ? Color(averageUIColor!) : .clear)
-                    
-                    
-                    
-                    ColorPicker("Pick a memorable color from picture", selection: $pickedColor)
-                        .onChange(of: pickedColor) { _ in
-                            averageUIColor = UIColor(pickedColor)
+                Section("Title") {
+                    TextField("What's the name of this memory?", text: $text)
+                        .onSubmit {
+                            name = text
                         }
-                    TextField("What memory do you have in this picture?", text: $text)
-                        .frame(maxWidth: .infinity)
-                    
-                    DatePicker("When did this memory happened?", selection: $date, displayedComponents: [.date])
-                    
-                    
-                } else {
-                    ZStack {
-                        Rectangle()
-                            .fill(.secondary)
-                        
-                        Text("Tap to select a picture")
-                    }
-                    .onTapGesture {
-                        showImagePicker = true
-                    }
                 }
+                
+//                if let loadedImage = image {
+                Section("Visual reminiscence") {
+                    VStack(alignment: .center) {
+                        if image != nil {
+                            image!
+                                .resizable()
+                                .scaledToFit()
+                            
+                            
+                            
+                            Button("Change image") {
+                                showImagePicker = true
+                            }
+                        } else {
+                            ZStack {
+                                RoundedRectangle(cornerRadius: 20)
+                                    .fill(.secondary)
+                                
+                                Text("Tap if you have picture of \n\"\(name)\"")
+                                    .tint(.white)
+                            }
+                            .onTapGesture {
+                                showImagePicker = true
+                            }
+                        }
+                    }
+                    .frame(width: 200, height: 200)
+                        
+                        // dominat color & color picker
+                        Rectangle()
+                            .fill((averageUIColor != nil) ? Color(averageUIColor!) : .clear)
+                            .frame(width: 200, height: 200)
+                            .overlay {
+                                ColorPicker("What color resembles \n\"\(name)\"?", selection: $pickedColor)
+                                    .onChange(of: pickedColor) { _ in
+                                        averageUIColor = UIColor(pickedColor)
+                                    }
+                                    .background(.white)
+                            }
+                        
+                        
+                        
+                        
+                    }
+                    
+                    Section("Verbal reminiscence") {
+//                        TextField("What is the title of this memory?", text: $text)
+//                            .frame(maxWidth: .infinity)
+                        
+                        Text("Tell us about \"\(name)\"!")
+                        RecorderView(id: id)
+                            .frame(maxHeight: 400)
+                    }
+                    
+                    Section("Date reminiscence") {
+                        DatePicker("When did \n\"\(name)\" \nhappened?", selection: $date, displayedComponents: [.date])
+                    }
+                
+                    Text("How was weather like on \n\"\(name)\"?")
+                    // picker
+                    
+                    
+                }
+//                    else {
+//                    ZStack {
+//                        Rectangle()
+//                            .fill(.secondary)
+//
+//                        Text("Tap to select a picture")
+//                    }
+//                    .onTapGesture {
+//                        showImagePicker = true
+//                    }
+//                }
             }
             .onChange(of: inputImage) { _ in
                 loadImage()
@@ -83,7 +128,7 @@ struct AddMemoryView: View {
                 }
             }
         }
-    }
+//    }
     
     func loadImage() {
         guard let inputImage = inputImage else { return }
@@ -106,10 +151,11 @@ struct AddMemoryView: View {
         
         let newMemory = Memory(context: viewContext)
         newMemory.name = text
-        newMemory.id = UUID()
+        newMemory.id = id
         newMemory.image = (inputImage?.jpegData(compressionQuality: 1.0)!)!
         newMemory.color = averageUIColor!
         newMemory.date = date
+        
         
         do {
             try viewContext.save()
