@@ -11,10 +11,17 @@ import CoreData
 struct DNAView: View {
     @Environment(\.managedObjectContext) private var viewContext
     
+    @EnvironmentObject var notificationManager: NotificationManager
+    
     @FetchRequest(entity: Memory.entity(), sortDescriptors: [NSSortDescriptor(keyPath: \Memory.date, ascending: true)]) var memories: FetchedResults<Memory>
     
     @State private var showingAddMemoryView = false
-    
+    @State private var showingNotificationView = false
+    @State private var detailViewID: UUID?
+    var memory: Memory {
+        let mem = memories.filter { $0.id == detailViewID }
+        return mem.first ?? memories[0]
+    }
     
     var body: some View {
         NavigationView {
@@ -36,6 +43,10 @@ struct DNAView: View {
                             .frame(height: 40)
                         }
                         .onDelete(perform: deleteMemory)
+                        .onChange(of: notificationManager.currentViewId) { viewId in
+                            detailViewID = viewId
+                            showingNotificationView = true
+                        }
                         .listRowBackground(Color.clear)
                         .listRowSeparatorTint(Color.clear)
 //                            .rotation3DEffect(.degrees(geo.frame(in: .global).minY - fullView.size.height / 2) / 5, axis: (x: 0, y: 1, z: 0))
@@ -43,6 +54,9 @@ struct DNAView: View {
                 }
                 NavigationLink("", isActive: $showingAddMemoryView) {
                     AddMemoryView()
+                }
+                NavigationLink("", isActive: $showingNotificationView) {
+                    DetailView(memories: memories,memory: memory)
                 }
             }
             .toolbar {

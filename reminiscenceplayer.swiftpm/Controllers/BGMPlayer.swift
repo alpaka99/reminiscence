@@ -10,7 +10,6 @@ import SwiftUI
 import AVFoundation
 
 class BGMPlayer: ObservableObject {
-//    static let soundPlayer = SoundSetting()
     
     var player: AVAudioPlayer?
     

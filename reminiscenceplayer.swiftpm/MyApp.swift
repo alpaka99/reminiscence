@@ -2,7 +2,12 @@ import SwiftUI
 
 @main
 struct MyApp: App {
-//    @StateObject private var dataController = DataController()
+    let notificationManager = NotificationManager()
+
+        init() {
+            UNUserNotificationCenter.current().delegate = notificationManager
+        }
+    
     
     let persistenceController = PersistenceController.shared
     var soundPlayer = SoundPlayer()
@@ -10,12 +15,12 @@ struct MyApp: App {
     
     var body: some Scene {
         WindowGroup {
-//            ContentView()
-            DNAView()
-//            AddMemoryView()
+//            DNAView()
+            ColorChipsView()
                 .environment(\.managedObjectContext, persistenceController.container.viewContext)
                 .environmentObject(soundPlayer)
                 .environmentObject(bgmPlayer)
+                .environmentObject(notificationManager)
                 .onAppear {
 //                    bgmPlayer.play(fileName: "reminiscence")
                 }

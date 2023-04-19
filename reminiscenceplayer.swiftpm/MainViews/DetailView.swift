@@ -21,31 +21,41 @@ struct DetailView: View {
     @State private var showAlert = false
     
     var memories: FetchedResults<Memory>
-    let memory: Memory
-    
-    static let dateFormat: DateFormatter = {
-        let formatter = DateFormatter()
-        formatter.dateFormat = "YYYY.MM.dd"
-        return formatter
-    }()
+    @State var memory: Memory?
+
+    @State var isDeleting = false
 
     var body: some View {
         VStack {
-            Image(uiImage: (UIImage(data: memory.image) ?? UIImage(named: "sample_image")!))
-                .resizable()
-                .scaledToFit()
-                .blur(radius: blurAmount)
-            
-//            TypeWriterView(finalText: "\(memory.date)")
-            TypeWriterView(finalText: memory.name)
-            
-            // ???
-//            List(self.audios, id: \.self) { i in
-//                    Text("\(i.relativeString)")
-//                    .onTapGesture {
-//                        soundPlayer.playRecord(fileName: i.relativeString)
+            if let memory = memory {
+                VStack(alignment: .trailing) {
+                    Text(String(memory.date.get(.year))+"/\(memory.date.get(.month))/\(memory.date.get(.day))")
+                    
+                    
+                    Image(uiImage: (UIImage(data: memory.image) ?? UIImage(named: "sample_image")!))
+                        .resizable()
+                        .scaledToFit()
+                        .frame(width: 200, height: 200)
+                        .clipped()
+                        .blur(radius: blurAmount)
+                    
+                    
+                    //            TypeWriterView(finalText: "\(memory.date)")
+                    TypeWriterView(finalText: memory.name)
+                    
+//                    NavigationLink("", isActive: $showEditView) {
+//                        EditView(memory: memory)
 //                    }
-//            }
+                }
+                .clipShape(Rectangle())
+                .background(Color(memory.color))
+                .border(.gray, width: 1)
+                //            .shadow(color: .gray, radius: 5, x: 10, y:10)
+                //            .background(.white)
+            } else {
+                Text("Good bye")
+            }
+            
             
             HStack {
                 Button {
@@ -58,50 +68,25 @@ struct DetailView: View {
                     }
                     isPlaying.toggle()
                 } label: {
-                    if isPlaying {
-                        HStack {
-                            Circle()
-                                .fill(.blue)
-                                .frame(width: 75, height: 75)
-                                .overlay {
-                                    Image(systemName: "pause")
-                                        .tint(.white)
-                                }
-                            Text("Playing reminiscence")
-                        }
-                    } else {
-                        HStack {
-                            Circle()
-                                .fill(.white)
-                                .frame(width: 75, height: 75)
-                                .overlay {
-                                    Image(systemName: "recordingtape")
-                                        .tint(.blue)
-                                }
-                            Text("Play this reminiscence")
-                        }
+                    HStack {
+                        Circle()
+                            .fill(.white)
+                            .frame(width: 75, height: 75)
+                            .overlay {
+                                Image(systemName: "recordingtape")
+                                    .tint(.blue)
+                            }
+                        Text("Play this reminiscence")
                     }
                 }
                 
-                NavigationLink("", isActive: $showEditView) {
-                    EditView()
-                }
+                
                 
             }
         }
-        .background(Color(memory.color))
         .toolbar {
             ToolbarItem {
                 Button {
-                    showEditView = true
-                } label: {
-                    Text("Edit")
-                }
-            }
-            
-            ToolbarItem {
-                Button {
-//                    deleteMemory()
                     showAlert.toggle()
                 } label: {
                     Text("Delete")
@@ -113,12 +98,13 @@ struct DetailView: View {
                 title: Text("Warning"),
                 message: Text("Do you really want to delete this memory?"),
                 primaryButton: .destructive(Text("Delete")) {
+                    dismiss()
                     deleteMemory()
                 },
                 secondaryButton: .cancel())
         }
         .onAppear {
-            getAudios(id: "\(memory.id)")
+            getAudios(id: "\(memory!.id)")
             bgmPlayer.player?.stop()
             blurImage()
         }
@@ -129,13 +115,16 @@ struct DetailView: View {
     }
     
     func deleteMemory() {
-//        index.map { memories[$0] }.forEach(viewContext.delete)
-        
-//        indexSet.map { memories[$0] }.forEach(viewContext.delete)
+        isDeleting = true
+        let deletingId = memory!.id
+        memory = nil
         for i in 0..<memories.count {
-            if memory.id == memories[i].id {
+            if deletingId == memories[i].id {
                 viewContext.delete(memories[i])
+                break
             }
+            
+        
         }
         
         do {
@@ -149,10 +138,9 @@ struct DetailView: View {
     }
     
     func blurImage() {
-        blurAmount = Double(memory.name.count)
         Timer.scheduledTimer(withTimeInterval: 0.2, repeats: true) { timer in
             if blurAmount > 0 {
-                blurAmount -= 1
+                blurAmount -= 2
             } else {
                 timer.invalidate()
             }
@@ -175,9 +163,6 @@ struct DetailView: View {
                     self.audios.append(i)
                 }
             }
-            
-//            print("This is audios \n\n\n")
-//            print(audios.count)
             
         } catch {
             print("Cannot get audio \(error.localizedDescription)")

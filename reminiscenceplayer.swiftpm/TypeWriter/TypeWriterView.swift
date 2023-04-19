@@ -8,11 +8,12 @@
 import SwiftUI
 
 struct TypeWriterView: View {
+    @EnvironmentObject var soundPlayer: SoundPlayer
+    
     @State private var text = ""
+    
     var index = 0
     let finalText: String
-    
-    @EnvironmentObject var soundPlayer: SoundPlayer
     
     var body: some View {
         Text(text)
@@ -62,20 +63,5 @@ struct TypeWriterView_Previews: PreviewProvider {
     }
 }
 
-extension String {
-    var characterArray: [Character]{
-        var characterArray = [Character]()
-        for character in self {
-            characterArray.append(character)
-        }
-        return characterArray
-    }
-}
-
-extension TypeWriterView {
-    func stopSound() {
-        self.soundPlayer.player?.stop()
-    }
-}
 
 

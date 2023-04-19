@@ -13,6 +13,8 @@ struct EditView: View {
     
     @FetchRequest(entity: Memory.entity(), sortDescriptors: []) private var memories: FetchedResults<Memory>
     
+    let memory: Memory
+
     @State private var image: Image?
     @State private var showImagePicker = false
     @State private var inputImage: UIImage?
@@ -133,11 +135,10 @@ struct EditView: View {
         
         print(memories.count)
     }
-
 }
 
-struct EditView_Previews: PreviewProvider {
-    static var previews: some View {
-        EditView()
-    }
-}
+//struct EditView_Previews: PreviewProvider {
+//    static var previews: some View {
+//        EditView()
+//    }
+//}
