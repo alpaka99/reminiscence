@@ -24,7 +24,6 @@ struct AddMemoryView: View {
     @State private var text = ""
     @State private var pickedColor: Color = Color.clear
     @State private var date: Date = Date()
-    @State var name = "memory"
     
     let id = UUID()
     
@@ -33,9 +32,6 @@ struct AddMemoryView: View {
             Form {
                 Section("Title") {
                     TextField("What's the name of this memory?", text: $text)
-                        .onSubmit {
-                            name = text
-                        }
                 }
                 
 //                if let loadedImage = image {
@@ -56,7 +52,7 @@ struct AddMemoryView: View {
                                 RoundedRectangle(cornerRadius: 20)
                                     .fill(.secondary)
                                 
-                                Text("Tap if you have picture of \n\"\(name)\"")
+                                Text("Tap if you have picture of \n\"\(text)\"")
                                     .tint(.white)
                             }
                             .onTapGesture {
@@ -71,7 +67,7 @@ struct AddMemoryView: View {
                             .fill((averageUIColor != nil) ? Color(averageUIColor!) : .clear)
                             .frame(width: 200, height: 200)
                             .overlay {
-                                ColorPicker("What color represents \n\"\(name)\"?", selection: $pickedColor)
+                                ColorPicker("What color represents \n\"\(text)\"?", selection: $pickedColor)
                                     .onChange(of: pickedColor) { _ in
                                         averageUIColor = UIColor(pickedColor)
                                     }
@@ -80,13 +76,13 @@ struct AddMemoryView: View {
                     }
                     
                     Section("Verbal Reminiscence") {
-                        Text("Tell us about \"\(name)\"!")
+                        Text("Tell us about \"\(text)\"!")
                         RecorderView(id: id)
                             .frame(maxHeight: 400)
                     }
                     
                     Section("Date reminiscence") {
-                        DatePicker("When did \n\"\(name)\" \nhappened?", selection: $date, displayedComponents: [.date])
+                        DatePicker("When did \n\"\(text)\" \nhappened?", selection: $date, displayedComponents: [.date])
                     }
                 }
             }
@@ -96,6 +92,7 @@ struct AddMemoryView: View {
             .sheet(isPresented: $showImagePicker) {
                 ImagePicker(image: $inputImage)
             }
+            .navigationViewStyle(StackNavigationViewStyle())
             .toolbar {
                 ToolbarItem {
                     Button("Add") {
@@ -140,14 +137,12 @@ struct AddMemoryView: View {
         
         do {
             try viewContext.save()
-            print(memories.count)
         } catch {
             let nsError = error as NSError
             fatalError("Unresolved error \(nsError.localizedDescription)")
         }
         
         
-        print(memories.count)
     }
     
     
@@ -157,7 +152,8 @@ struct AddMemoryView: View {
         content.subtitle = "Go and reminiscence \(text)!"
         content.sound = UNNotificationSound.default
         notificationManager.currentViewId = id
-
+        
+        print("added", id)
 
         let trigger = UNTimeIntervalNotificationTrigger(timeInterval: 5, repeats: false)
         let request = UNNotificationRequest(identifier: UUID().uuidString, content: content, trigger: trigger)

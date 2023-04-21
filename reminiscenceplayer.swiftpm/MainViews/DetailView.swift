@@ -19,71 +19,79 @@ struct DetailView: View {
     @State private var isPlaying = false
     @State private var showEditView = false
     @State private var showAlert = false
-    
-    var memories: FetchedResults<Memory>
     @State var memory: Memory?
-
     @State var isDeleting = false
+    
+//    var memories: FetchedResults<Memory>
+    @FetchRequest(entity: Memory.entity(), sortDescriptors: [NSSortDescriptor(keyPath: \Memory.date, ascending: true)]) var memories: FetchedResults<Memory>
 
     var body: some View {
-        VStack {
-            if let memory = memory {
-                VStack(alignment: .trailing) {
-                    Text(String(memory.date.get(.year))+"/\(memory.date.get(.month))/\(memory.date.get(.day))")
-                    
-                    
-                    Image(uiImage: (UIImage(data: memory.image) ?? UIImage(named: "sample_image")!))
-                        .resizable()
-                        .scaledToFit()
-                        .frame(width: 200, height: 200)
-                        .clipped()
-                        .blur(radius: blurAmount)
-                    
-                    
-                    //            TypeWriterView(finalText: "\(memory.date)")
-                    TypeWriterView(finalText: memory.name)
-                    
-//                    NavigationLink("", isActive: $showEditView) {
-//                        EditView(memory: memory)
-//                    }
+        ZStack {
+            Rectangle()
+                .fill(LinearGradient(colors: [.blue, .white],
+                                     startPoint: .top,
+                                     endPoint: .bottom))
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+                .ignoresSafeArea(.all)
+            
+            VStack {
+                if let memory = memory {
+                    VStack(alignment: .trailing, spacing: 10) {
+                        RoundedRectangle(cornerRadius: 10)
+                            .fill(Color(memory.color))
+                            .frame(width:300, height: 300)
+                            .overlay {
+                                Image(uiImage: (UIImage(data: memory.image) ?? UIImage(named: "sample_image")!))
+                                    .resizable()
+                                    .scaledToFit()
+                                    .frame(width: 200, height: 200)
+                                    .blur(radius: blurAmount)
+                            }
+                        
+                        VStack(alignment: .leading, spacing: 10) {
+                            Text(String(memory.date.get(.year))+"/\(memory.date.get(.month))/\(memory.date.get(.day))")
+                                .font(.title2)
+                            TypeWriterView(finalText: memory.name)
+                        }
+                        .fixedSize(horizontal: true, vertical: false)
+                    }
+                    .clipShape(Rectangle())
+                    .background(Color(memory.color))
+                } else {
+                    Text("Good bye")
                 }
-                .clipShape(Rectangle())
-                .background(Color(memory.color))
-                .border(.gray, width: 1)
-                //            .shadow(color: .gray, radius: 5, x: 10, y:10)
-                //            .background(.white)
-            } else {
-                Text("Good bye")
-            }
-            
-            
-            HStack {
-                Button {
-                    if isPlaying {
-                        soundPlayer.stop()
-                    } else {
-                        for i in audios {
-                            soundPlayer.playRecord(fileName: i.relativeString)
+                
+                
+                if audios.isEmpty == false {
+                    HStack {
+                        Button {
+                            if isPlaying {
+                                soundPlayer.stop()
+                            } else {
+                                for i in audios {
+                                    soundPlayer.playRecord(fileName: i.relativeString)
+                                }
+                            }
+                            isPlaying.toggle()
+                        } label: {
+                            HStack {
+                                Circle()
+                                    .fill(.white)
+                                    .frame(width: 75, height: 75)
+                                    .overlay {
+                                        Image(systemName: "recordingtape")
+                                            .tint(.blue)
+                                    }
+                                Text("Play this reminiscence")
+                            }
+                            .background(.white)
                         }
                     }
-                    isPlaying.toggle()
-                } label: {
-                    HStack {
-                        Circle()
-                            .fill(.white)
-                            .frame(width: 75, height: 75)
-                            .overlay {
-                                Image(systemName: "recordingtape")
-                                    .tint(.blue)
-                            }
-                        Text("Play this reminiscence")
-                    }
                 }
-                
-                
-                
             }
         }
+        .background()
+        .navigationViewStyle(StackNavigationViewStyle())
         .toolbar {
             ToolbarItem {
                 Button {
@@ -118,13 +126,23 @@ struct DetailView: View {
         isDeleting = true
         let deletingId = memory!.id
         memory = nil
+        
+        if audios.isEmpty == false {
+            do {
+                try FileManager.default.removeItem(at: audios[0])
+                print("erased")
+            } catch {
+                print("Erase file error \(error.localizedDescription)")
+            }
+        } else {
+            print("No audio file")
+        }
+        
         for i in 0..<memories.count {
             if deletingId == memories[i].id {
                 viewContext.delete(memories[i])
                 break
             }
-            
-        
         }
         
         do {
@@ -134,13 +152,12 @@ struct DetailView: View {
             fatalError("Unresolved error \(nsError.localizedDescription)")
         }
         
-//        dismiss()
     }
     
     func blurImage() {
         Timer.scheduledTimer(withTimeInterval: 0.2, repeats: true) { timer in
             if blurAmount > 0 {
-                blurAmount -= 2
+                blurAmount -= 1
             } else {
                 timer.invalidate()
             }

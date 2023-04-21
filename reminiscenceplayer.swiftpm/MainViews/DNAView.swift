@@ -31,7 +31,7 @@ struct DNAView: View {
                         ForEach(memories) { memory in
                             GeometryReader { geo in
                                 NavigationLink(" \(memory.name)") {
-                                    DetailView(memories: memories, memory: memory)
+                                    DetailView(memory: memory, memories: _memories)
                                 }
                                 .font(.title)
                                 .frame(maxWidth: fullView.size.width)
@@ -55,9 +55,9 @@ struct DNAView: View {
                 NavigationLink("", isActive: $showingAddMemoryView) {
                     AddMemoryView()
                 }
-                NavigationLink("", isActive: $showingNotificationView) {
-                    DetailView(memories: memories,memory: memory)
-                }
+//                NavigationLink("", isActive: $showingNotificationView) {
+//                    DetailView(memories: memories,memory: memory)
+//                }
             }
             .toolbar {
                 ToolbarItem() {

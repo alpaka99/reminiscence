@@ -18,14 +18,12 @@ extension NotificationManager: UNUserNotificationCenterDelegate {
                                 willPresent notification: UNNotification,
                                 withCompletionHandler completionHandler: @escaping (UNNotificationPresentationOptions) -> Void) {
         //App is in foreground
-        currentViewId = UUID()
-        completionHandler([.sound])
+        completionHandler([.sound, .list, .badge, .banner])
     }
 
     func userNotificationCenter(_ center: UNUserNotificationCenter, didReceive response: UNNotificationResponse, withCompletionHandler completionHandler: @escaping () -> Void) {
 
         //App is in background, user has tapped on the notification
         currentViewId = UUID()
-        completionHandler()
     }
 }

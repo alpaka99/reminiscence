@@ -15,14 +15,14 @@ struct MyApp: App {
     
     var body: some Scene {
         WindowGroup {
-//            DNAView()
+            //            DNAView()
             ColorChipsView()
                 .environment(\.managedObjectContext, persistenceController.container.viewContext)
                 .environmentObject(soundPlayer)
                 .environmentObject(bgmPlayer)
                 .environmentObject(notificationManager)
                 .onAppear {
-//                    bgmPlayer.play(fileName: "reminiscence")
+                    //                    bgmPlayer.play(fileName: "reminiscence")
                 }
         }
     }

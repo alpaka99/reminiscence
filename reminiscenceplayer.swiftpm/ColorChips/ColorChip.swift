@@ -50,6 +50,6 @@ struct Colorchip: View {
         }
         .padding(3)
         .frame(width: width, height: height)
-        .background(RoundedRectangle(cornerRadius: 5).fill(color))
+        .background(RoundedRectangle(cornerRadius: 10).fill(color))
     }
 }

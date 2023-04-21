@@ -16,41 +16,76 @@ struct ColorChipsView: View {
     @State var showingNotificationView = false
     @State var detailViewID: UUID?
     
-    var memory: Memory {
-        let mem = memories.filter { $0.id == detailViewID }
-        return mem.first ?? memories[0]
+    let scale = 4.0
+    var cellWidth: CGFloat {
+        return 90 * scale
     }
+    
+    var cellHeight: CGFloat{
+        return 100 * scale
+    }
+    
+//    var targetMemory: Memory {
+//        let mem = memories.filter { $0.id == detailViewID }
+//        return mem.first ?? memories[0]
+//    }
+    
+    @State var targetMemory: Memory?
     
     var body: some View {
         NavigationView {
-            VStack {
-                ScrollView(.horizontal) {
-                    HStack(spacing: 150) {
-                        ForEach(memories, id: \.self) { mem in
-                            GeometryReader { geo in
-                                Colorchip(image: mem.image, name: mem.name, date: mem.date, color: Color(mem.color), scale: 2)
-                                    .rotation3DEffect(.degrees(-geo.frame(in: .global).minX) / 8, axis: (x: 0, y: 1, z: 0))
-                                    .position(x: geo.size.width / 2, y: geo.size.height / 2)
-                                    .onTapGesture {
-                                        detailViewID = mem.id
-                                        showingNotificationView = true
-                                    }
+            ZStack {
+                BackgroundView()
+                
+                VStack {
+                    ScrollView(.horizontal, showsIndicators: false) {
+                        HStack(spacing: 0) {
+//                            ForEach(memories.indices, id: \.self) { index in
+//                                GeometryReader { geo in
+//                                    Colorchip(image: memories[index].image, name: memories[index].name, date: memories[index].date, color: Color(memories[index].color), scale: scale)
+//                                        .rotation3DEffect(.degrees(-geo.frame(in: .global).minX) / 8, axis: (x: 0, y: 1, z: 0))
+//                                        .position(x: geo.size.width, y: geo.size.height / scale)
+//                                        .onTapGesture {
+//                                            targetMemory = memories[index]
+//                                            showingNotificationView = true
+//                                        }
+//                                }
+//                                .frame(width: 500, height: 800)
+//                            }
+                            ForEach(memories) { mem in
+                                GeometryReader { geo in
+                                    Colorchip(image: mem.image, name: mem.name, date: mem.date , color: Color(mem.color), scale: scale)
+                                        .rotation3DEffect(.degrees(-geo.frame(in: .global).minX) / 8, axis: (x: 0, y: 1, z: 0))
+                                        .position(x: geo.size.width, y: geo.size.height / scale)
+                                        .onTapGesture {
+                                            targetMemory = mem
+                                            showingNotificationView = true
+                                        }
+                                }
+                                .frame(width: 500, height: 800)
+                            }
+                            
+                            NavigationLink("", isActive: $showingAddMemoryView) {
+                                AddMemoryView()
+                            }
+                            .frame(width: 500)
+                            
+                            NavigationLink("", isActive: $showingNotificationView) {
+                                    DetailView(memory: targetMemory, memories: _memories)
+//                                    DetailView(memory: targetMemory)
+//                                    ErrorView()
                             }
                         }
-                        
-                        NavigationLink("", isActive: $showingAddMemoryView) {
-                            AddMemoryView()
-                        }
-                        NavigationLink("", isActive: $showingNotificationView) {
-                            DetailView(memories: memories,memory: memory)
-                        }
                     }
+                    .padding()
                 }
-                .onChange(of: notificationManager.currentViewId) { viewId in
-                    detailViewID = viewId
-                    showingNotificationView = true
-                }
-                
+            }
+            .onChange(of: targetMemory) { _ in
+                showingNotificationView = true
+            }
+            .onChange(of: notificationManager.currentViewId) { viewId in
+                getTargetMemory(targetId: viewId!)
+                showingNotificationView = true
             }
             .toolbar {
                 ToolbarItem() {
@@ -58,11 +93,21 @@ struct ColorChipsView: View {
                         showingAddMemoryView = true
                     } label: {
                         Text("Add a new memory")
+                            .foregroundColor(.white)
                     }
                 }
             }
         }
         .ignoresSafeArea(.all)
+        .navigationViewStyle(StackNavigationViewStyle())
+    }
+    
+    func getTargetMemory(targetId: UUID) {
+        for mem in memories {
+            if mem.id == targetId {
+                targetMemory = mem
+            }
+        }
     }
 }
 

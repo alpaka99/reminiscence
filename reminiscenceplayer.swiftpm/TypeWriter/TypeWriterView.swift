@@ -17,12 +17,13 @@ struct TypeWriterView: View {
     
     var body: some View {
         Text(text)
+//            .font(Font.custom("HelveticaNeue-Bold", size: 15))
+            .font(.title3)
             .onAppear(perform: typeWrite)
             .onTapGesture {
                 typeWrite()
             }
             .onDisappear {
-                
             }
     }
     
@@ -34,20 +35,6 @@ struct TypeWriterView: View {
         Timer.scheduledTimer(withTimeInterval: 0.2, repeats: true) { timer in
             let letter = String(charArray[index])
             text += letter
-            switch(letter) {
-            case ".":
-                soundPlayer.play(fileName: "dot")
-            case "!":
-                soundPlayer.play(fileName: "exclamation")
-            case "?":
-                soundPlayer.play(fileName: "question")
-            case ",":
-                soundPlayer.play(fileName: "rest")
-            case " ":
-                print(" ")
-            default:
-                soundPlayer.play(fileName: letter)
-            }
             index += 1
             
             if index >= charArray.count {
